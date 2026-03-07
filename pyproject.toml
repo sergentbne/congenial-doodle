@@ -1,0 +1,30 @@
+[project]
+name = "new-inference"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.10.19"
+dependencies = [
+    "mmcv",
+    "mmengine>=0.10.7",
+    "openmim>=0.3.9",
+    "psutil>=7.2.2",
+    "setuptools>=82.0.0",
+    "timm>=1.0.25",
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+]
+
+[tool.uv.sources]
+mmcv = { git = "https://github.com/Robolightning/mmcv.git" }
+torch = [
+    { index = "pytorch-cu130" },
+]
+torchvision = [
+    { index = "pytorch-cu130" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
