@@ -8,6 +8,7 @@ import numpy as np
 # try:
 #    from mmcv.utils import Config, DictAction
 # except:
+from memory_profiler import profile
 from mmengine import Config, DictAction
 import sys
 import gc
@@ -134,6 +135,7 @@ def get_normal_image(output_dict, pad_info):
     return (pred_normal_vis * 255).astype(np.uint8)
 
 
+@profile
 def write_worker(write_queue):
     """Dedicated thread for disk writes — keeps GPU threads from blocking on I/O."""
     futures = set()
@@ -173,7 +175,7 @@ def producer(image_list, queues, num_gpus):
 
             if len(batch_buffers[gpu_id]) >= BATCH_SIZE:
                 queues[gpu_id].put(batch_buffers[gpu_id])
-                log.info("added batch to queue")
+                # log.info("added batch to queue")
                 batch_buffers[gpu_id] = []
             if shutdown.is_set():
                 return
