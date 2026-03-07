@@ -162,6 +162,7 @@ def producer(image_list, queues, num_gpus):
     batch_buffers = [[] for _ in range(num_gpus)]
     gpu_idx = 0
 
+    log.info(image_list)
     with ThreadPoolExecutor(max_workers=CPU_WORKERS) as pool:
         for result in pool.map(preprocess_single, image_list, chunksize=1):
             if result is None:
