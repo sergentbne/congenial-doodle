@@ -17,10 +17,11 @@ from concurrent.futures import ThreadPoolExecutor
 import logging
 import time
 from rich.progress import track
-from monitoring import start_monitor_in_background
+from monitoring import start_monitor_in_background, SHUTDOWN
 import pickle
 import tempfile
 from concurrent.futures import wait, ALL_COMPLETED
+import signal
 
 # Constants
 intrinsic = [707.0493, 707.0493, 604.0814, 180.5066]
@@ -36,6 +37,16 @@ CPU_WORKERS = 4  # parallel CPU preprocessing threads
 WRITE_WORKERS = 2  # parallel disk write threads
 
 log = logging.getLogger()
+
+shutdown = SHUTDOWN
+
+
+def sigterm_handler(signum, frame):
+    shutdown.set()
+
+
+signal.signal(signal.SIGTERM, sigterm_handler)
+signal.signal(signal.SIGINT, sigterm_handler)  # optional: handle Ctrl-C too
 
 
 def load_model(gpu_id):
@@ -127,7 +138,7 @@ def write_worker(write_queue):
     """Dedicated thread for disk writes — keeps GPU threads from blocking on I/O."""
     futures = set()
     with ThreadPoolExecutor(max_workers=WRITE_WORKERS) as pool:
-        while True:
+        while not shutdown.is_set():
             item = write_queue.get()
             if item is None:
                 break
@@ -163,6 +174,8 @@ def producer(image_list, queues, num_gpus):
                 queues[gpu_id].put(batch_buffers[gpu_id])
                 log.info("added batch to queue")
                 batch_buffers[gpu_id] = []
+            if shutdown.is_set():
+                return
 
     # Flush partial batches
     for gpu_id in range(num_gpus):
@@ -190,7 +203,7 @@ def consumer(gpu_id, queue, depth_db, normal_db, write_queue):
 
     log.info(f"[GPU {gpu_id}] Model ready.")
 
-    while True:
+    while not shutdown.is_set():
         batch = queue.get()
         if batch is None:
             break
