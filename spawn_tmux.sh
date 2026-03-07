@@ -10,15 +10,15 @@ fi
 tmux new-session -d -s "$SESSION" -n "inference testing"
 
 tmux split-window -h -t "$SESSION:1"
-tmux split-window -v -t "$SESSION:1.2"
+tmux split-window -v -t "$SESSION:1.1"
 # window 1: editor
+tmux send-keys -t "$SESSION:1.0" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
 tmux send-keys -t "$SESSION:1.1" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
 tmux send-keys -t "$SESSION:1.2" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
-tmux send-keys -t "$SESSION:1.3" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
 
-tmux send-keys -t "$SESSION:1.1" "uv run inference_v2.py /mnt/harddrive/training_data/nuscenes_data /mnt/harddrive/training_data" C-m
-tmux send-keys -t "$SESSION:1.2" "glances" C-m
-tmux send-keys -t "$SESSION:1.3" "nvtop" C-m
+tmux send-keys -t "$SESSION:1.0" "uv run inference_v2.py /mnt/harddrive/training_data/nuscenes_data /mnt/harddrive/training_data" C-m
+tmux send-keys -t "$SESSION:1.1" "glances" C-m
+tmux send-keys -t "$SESSION:1.2" "nvtop" C-m
 
 # window 2: server + logs (split vertically)
 tmux new-window -t "$SESSION" -n "shell"
