@@ -9,8 +9,8 @@ fi
 # create new session detached
 tmux new-session -d -s "$SESSION" -n "inference testing"
 
-tmux split-window -h -t "$SESSION:0"
-tmux split-window -v -t "$SESSION:0.1"
+tmux split-window -v -t "$SESSION:0"
+tmux split-window -h -t "$SESSION:0.1"
 # window 1: editor
 tmux send-keys -t "$SESSION:0.0" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
 tmux send-keys -t "$SESSION:0.1" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
