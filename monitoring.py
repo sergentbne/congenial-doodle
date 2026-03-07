@@ -67,7 +67,7 @@ def monitor_thread(
         tracemalloc.stop()
 
 
-def start_monitor_in_background(signal):
+def start_monitor_in_background():
     t = threading.Thread(target=monitor_thread, name="memory-monitor", daemon=True)
     t.start()
     return t
