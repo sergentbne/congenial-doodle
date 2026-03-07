@@ -5,9 +5,9 @@ import torch
 import cv2
 import numpy as np
 
-#try:
+# try:
 #    from mmcv.utils import Config, DictAction
-#except:
+# except:
 from mmengine import Config, DictAction
 import sys
 import gc
@@ -137,9 +137,10 @@ def write_worker(write_queue):
             if len(futures) > 4:
                 log.info("queue limit hit")
                 _, futures = wait(futures, return_when=ALL_COMPLETED)
-                
+
     for f in futures:
         f.result()
+
 
 def producer(image_list, queues, num_gpus):
     """
@@ -197,7 +198,7 @@ def consumer(gpu_id, queue, depth_db, normal_db, write_queue):
         try:
             for rgb_np, pad_info, rgb_origin, scaled_intrinsics, name in batch:
                 # Pin memory here (single thread) then transfer non-blocking
-                #pinned = torch.from_numpy(rgb_np).pin_memory()
+                # pinned = torch.from_numpy(rgb_np).pin_memory()
                 pinned = torch.from_numpy(rgb_np)
                 gpu_tensor = pinned.cuda(gpu_id, non_blocking=True)
 
@@ -240,7 +241,9 @@ def consumer(gpu_id, queue, depth_db, normal_db, write_queue):
 def get_next_image_path(image_db_path):
     FILENAME_OF_PATH = "paths.pkl"
     if os.path.exists(FILENAME_OF_PATH):
-        log.info(f"CACHE HIT: file {FILENAME_OF_PATH} helped save us alot of time. Thanks {FILENAME_OF_PATH}")
+        log.info(
+            f"CACHE HIT: file {FILENAME_OF_PATH} helped save us alot of time. Thanks {FILENAME_OF_PATH}"
+        )
         return pickle.load(open(FILENAME_OF_PATH, "rb"))
     list_of_files = []
     extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}
@@ -249,13 +252,11 @@ def get_next_image_path(image_db_path):
             if os.path.splitext(file)[1].lower() in extensions:
                 file_name = os.path.splitext(file)[0].lower()
                 list_of_files.append((os.path.join(root, file), file_name))
-    with tempfile.NamedTemporaryFile('wb', delete=False, dir='.') as tmp:
+    with tempfile.NamedTemporaryFile("wb", delete=False, dir=".") as tmp:
         pickle.dump(list_of_files, tmp)
         tmp_name = tmp.name
-        os.replace(tmp_name, FILENAME_OF_PATH) 
+        os.replace(tmp_name, FILENAME_OF_PATH)
     return list_of_files
-
-
 
 
 def fetch_normal_and_depth_from_image(path_to_db, depth_db, normal_db):
