@@ -16,6 +16,10 @@ tmux send-keys -t "$SESSION:0.0" "cd /home/lrima/Documents/prog/inference/Metric
 tmux send-keys -t "$SESSION:0.1" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
 tmux send-keys -t "$SESSION:0.2" "cd /home/lrima/Documents/prog/inference/Metric3D" C-m
 
+#update system
+tmux send-keys -t "$SESSION:0.0" "git pull" C-m
+
+#launch system
 tmux send-keys -t "$SESSION:0.0" "uv run inference_v2.py /mnt/harddrive/training_data/nuscenes_data /mnt/harddrive/training_data" C-m
 tmux send-keys -t "$SESSION:0.2" "glances" C-m
 tmux send-keys -t "$SESSION:0.1" "nvtop" C-m
