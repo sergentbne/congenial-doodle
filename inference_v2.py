@@ -166,7 +166,7 @@ def producer(image_list, queues, num_gpus):
 
     with ThreadPoolExecutor(max_workers=CPU_WORKERS) as pool:
         for pack in image_list:
-            result = pool.submit(preprocess_single, image_list)
+            result = pool.submit(preprocess_single, pack)
             if result is None:
                 continue
 
