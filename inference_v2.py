@@ -54,7 +54,6 @@ def load_model(gpu_id):
     torch.cuda.set_device(gpu_id)
     with torch.no_grad():
         model = torch.hub.load("yvanyin/metric3d", "metric3d_vit_large", pretrain=True)
-        log.info("aaaA")
         model.cuda(gpu_id).eval()
     return model
 
@@ -161,24 +160,40 @@ def producer(image_list, queues, num_gpus):
     RAM stays bounded regardless of dataset size. Queues are bounded
     too so producer blocks when GPUs fall behind.
     """
+    futures = set()
     batch_buffers = [[] for _ in range(num_gpus)]
     gpu_idx = 0
 
-    log.info(image_list)
     with ThreadPoolExecutor(max_workers=CPU_WORKERS) as pool:
-        for result in pool.map(preprocess_single, image_list, chunksize=1):
+        for pack in image_list:
+            result = pool.submit(preprocess_single, image_list)
             if result is None:
                 continue
+
             gpu_id = gpu_idx % num_gpus
             batch_buffers[gpu_id].append(result)
             gpu_idx += 1
 
             if len(batch_buffers[gpu_id]) >= BATCH_SIZE:
-                queues[gpu_id].put(batch_buffers[gpu_id])
+                queues[gpu_id].put(map(lambda x: x.result(), batch_buffers[gpu_id]))
                 # log.info("added batch to queue")
-                batch_buffers[gpu_id] = []
+                batch_buffers[gpu_id].clear()
             if shutdown.is_set():
                 return
+    # with ThreadPoolExecutor(max_workers=CPU_WORKERS) as pool:
+    #     for result in pool.map(preprocess_single, image_list, chunksize=1):
+    #         if result is None:
+    #             continue
+    #         gpu_id = gpu_idx % num_gpus
+    #         batch_buffers[gpu_id].append(result)
+    #         gpu_idx += 1
+    #
+    #         if len(batch_buffers[gpu_id]) >= BATCH_SIZE:
+    #             queues[gpu_id].put(batch_buffers[gpu_id])
+    #             # log.info("added batch to queue")
+    #             batch_buffers[gpu_id] = []
+    #         if shutdown.is_set():
+    #             return
 
     # Flush partial batches
     for gpu_id in range(num_gpus):
