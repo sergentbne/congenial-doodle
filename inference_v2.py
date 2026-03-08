@@ -32,8 +32,8 @@ mean = torch.tensor([123.675, 116.28, 103.53]).float()[:, None, None]
 std = torch.tensor([58.395, 57.12, 57.375]).float()[:, None, None]
 padding = [123.675, 116.28, 103.53]
 
-BATCH_SIZE = 4  # images per GPU batch — tune based on VRAM
-QUEUE_SIZE = 4  # preprocessed batches to buffer per GPU (~10GB RAM budget)
+BATCH_SIZE = 16  # images per GPU batch — tune based on VRAM
+QUEUE_SIZE = 8  # preprocessed batches to buffer per GPU (~10GB RAM budget)
 CPU_WORKERS = 4  # parallel CPU preprocessing threads
 WRITE_WORKERS = 2  # parallel disk write threads
 
