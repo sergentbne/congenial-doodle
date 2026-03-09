@@ -4,3 +4,4 @@ show_dirs
 test_dataloader_*
 *.onnx
 *.png
+*.pkl
